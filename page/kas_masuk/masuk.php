@@ -133,18 +133,18 @@ if(isset($_POST['ubah'])) {
 									<td>Rp.<?= number_format($data['jumlah']); ?></td>
 									<td>
 										<a id="edit_data" data-toggle="modal" class="btn btn-success" data-target="#edit" data-id="<?= $data['id']; ?>" data-kode="<?= $data['kode']; ?>" data-ket="<?= $data['keterangan']; ?>" data-tgl="<?= $data['tgl']; ?>" data-jml="<?= $data['jumlah']; ?>"><i class="fa fa-edit"></i></a>
-										<a href="" class="btn btn-danger"><i class="fa fa-trash-o"></i></a>
+										<a href="?p=masuk&aksi=hapus&id=<?= $data['id']; ?>" class="btn btn-danger" onclick="return confirm('Yakin ?')"><i class="fa fa-trash-o"></i></a>
 									</td>
 								</tr>
 								<?php 
-								$total = $total + $data['jumlah'];
+								$totalM = $totalM + $data['jumlah'];
 								?>
                 <?php endwhile; ?>
                 </tbody>
                 <tfoot>
                 	<tr>
                 		<th colspan="4">Total Kas Masuk</th>
-                		<td>Rp.<?= number_format($total); ?></td>
+                		<td>Rp.<?= number_format($totalM); ?></td>
                 	</tr>
                 </tfoot>
             </table>

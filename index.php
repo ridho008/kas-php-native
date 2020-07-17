@@ -1,9 +1,32 @@
 ﻿<?php 
+session_start();
 error_reporting(0);
 require_once 'config/koneksi.php';
 
 $page = $_GET['p'];
 $aksi = $_GET['aksi'];
+
+if(!isset($_SESSION['admin'])) {
+    header("Location: login.php");
+    exit;
+}
+
+// if(isset($_SESSION['admin'])) {
+//     var_dump($_SESSION['admin']);
+// } else {
+//     var_dump($_SESSION['user']);
+// }
+
+$sql = $conn->query("SELECT * FROM tb_kas") or die(mysqli_error($conn));
+while($data = $sql->fetch_assoc()) {
+    $jml = $data['jumlah'];
+    $total_masuk = $total_masuk + $jml;
+
+    $jml_keluar = $data['keluar'];
+    $total_keluar = $total_keluar + $jml_keluar;
+
+    $total = $total_masuk - $total_keluar;
+}
 ?>
 <!DOCTYPE html>
 <html xmlns="http://www.w3.org/1999/xhtml">
@@ -24,48 +47,16 @@ $aksi = $_GET['aksi'];
 </head>
 <body>
     <div id="wrapper">
-        <nav class="navbar navbar-default navbar-cls-top " role="navigation" style="margin-bottom: 0">
-            <div class="navbar-header">
-                <button type="button" class="navbar-toggle" data-toggle="collapse" data-target=".sidebar-collapse">
-                    <span class="sr-only">Toggle navigation</span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                    <span class="icon-bar"></span>
-                </button>
-                <a class="navbar-brand" href="index.php">Binary admin</a> 
-            </div>
-  <div style="color: white;
-padding: 15px 50px 5px 50px;
-float: right;
-font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-danger square-btn-adjust">Logout</a> </div>
-        </nav>   
+        <!-- Navbar -->
+        <?php require_once 'themeplates/navbar.php'; ?> 
+        <!-- End Navbar -->  
            <!-- /. NAV TOP  -->
-                <nav class="navbar-default navbar-side" role="navigation">
-            <div class="sidebar-collapse">
-                <ul class="nav" id="main-menu">
-				<li class="text-center">
-                    <img src="assets/img/find_user.png" class="user-image img-responsive"/>
-					</li>
-                    <li>
-                        <a  href="index.php"><i class="fa fa-dashboard fa-2x"></i> Dashboard</a>
-                    </li>
-                      <li>
-                        <a  href="?p=masuk"><i class="fa fa-desktop fa-2x"></i> Kas Masuk</a>
-                    </li>
-                    <li>
-                        <a  href="?p=keluar"><i class="fa fa-qrcode fa-2x"></i> Kas Keluar</a>
-                    </li>
-						   <li  >
-                        <a  href="?p=rekap"><i class="fa fa-bar-chart-o fa-2x"></i> Rekapitulasi Kas</a>
-                    </li>	
-                      <li  >
-                        <a  href="?p=users"><i class="fa fa-table fa-2x"></i> Management Users</a>
-                    </li>	
-                </ul>
-               
-            </div>
-            
-        </nav>  
+          
+          <!-- Sidebar -->
+            <?php require_once 'themeplates/sidebar.php'; ?>
+          <!-- ENDSidebar -->
+        
+
         <!-- /. NAV SIDE  -->
         <div id="page-wrapper" >
             <div id="page-inner">
@@ -77,10 +68,14 @@ font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-d
                     if($page == 'masuk') {
                         if($aksi == '') {
                             require_once 'page/kas_masuk/masuk.php';
+                        } else if($aksi == 'hapus') {
+                            require_once 'page/kas_masuk/hapus.php';
                         }
                     } else if($page == 'keluar') {
                         if($aksi == '') {
                             require_once 'page/kas_keluar/keluar.php';
+                        } else if($aksi == 'hapus') {
+                            require_once 'page/kas_keluar/hapus.php';
                         }
                     } else if($page == 'rekap') {
                         if($aksi == '') {
@@ -90,6 +85,46 @@ font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-d
                         if($aksi == '') {
                             require_once 'page/user/user.php';
                         }
+                    } else { ?>
+                        <h2>Dashboard</h2>   
+                        <h5>Selamat Datang <strong><?= $_SESSION['admin']['nama']; ?></strong> Di Aplikasi Kas Sekolah. </h5>
+                        <hr>
+                        <div class="row">
+                <div class="col-md-4 col-sm-6 col-xs-6">           
+            <div class="panel panel-back noti-box">
+                <span class="icon-box bg-color-blue set-icon">
+                    <i class="fa fa-envelope"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="main-text">Rp.<?= number_format($total_masuk); ?></p>
+                    <p class="text-muted">Kas Masuk</p>
+                </div>
+             </div>
+             </div>
+                    <div class="col-md-4 col-sm-6 col-xs-6">           
+            <div class="panel panel-back noti-box">
+                <span class="icon-box bg-color-red set-icon">
+                    <i class="fa fa-envelope-o"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="main-text">Rp.<?= number_format($total_keluar); ?></p>
+                    <p class="text-muted">Kas Keluar</p>
+                </div>
+             </div>
+             </div>
+                    <div class="col-md-4 col-sm-6 col-xs-6">           
+            <div class="panel panel-back noti-box">
+                <span class="icon-box bg-color-green set-icon">
+                    <i class="fa fa-money"></i>
+                </span>
+                <div class="text-box" >
+                    <p class="main-text">Rp.<?= number_format($total); ?></p>
+                    <p class="text-muted">Saldo Akhir</p>
+                </div>
+             </div>
+             </div>
+            </div>
+                    <?php
                     }
                     ?>
                        
@@ -97,6 +132,7 @@ font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-d
                 </div>
                  <!-- /. ROW  -->
                  <!-- <hr /> -->
+                 
                
     </div>
              <!-- /. PAGE INNER  -->
@@ -104,24 +140,4 @@ font-size: 16px;"> Last access : 30 May 2014 &nbsp; <a href="#" class="btn btn-d
          <!-- /. PAGE WRAPPER  -->
         </div>
      <!-- /. WRAPPER  -->
-    <!-- SCRIPTS -AT THE BOTOM TO REDUCE THE LOAD TIME-->
-    <!-- JQUERY SCRIPTS -->
-    <script src="assets/js/jquery-1.10.2.js"></script>
-      <!-- BOOTSTRAP SCRIPTS -->
-    <script src="assets/js/bootstrap.min.js"></script>
-    <!-- METISMENU SCRIPTS -->
-    <script src="assets/js/jquery.metisMenu.js"></script>
-     <!-- DATA TABLE SCRIPTS -->
-    <script src="assets/js/dataTables/jquery.dataTables.js"></script>
-    <script src="assets/js/dataTables/dataTables.bootstrap.js"></script>
-        <script>
-            $(document).ready(function () {
-                $('#dataTables-example').dataTable();
-            });
-    </script>
-      <!-- CUSTOM SCRIPTS -->
-    <script src="assets/js/custom.js"></script>
-    
-   
-</body>
-</html>
+    <?php require_once 'themeplates/footer.php'; ?>
